@@ -5,7 +5,8 @@ const app = express();
 app.use(express.json());
 
 const user = require("./routes/user");
-const mongoose = require("./databases/mongoDb");
+require("./databases/mongoDb");  // Only for Run Mongoose
+//const mongoose = require("./databases/mongoDb");
 
 app.use('/user',user);
 
