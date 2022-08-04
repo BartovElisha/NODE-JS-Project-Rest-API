@@ -1,12 +1,19 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+// Load the full build.
+var _ = require('lodash');
+
 const router = express.Router();
 const userSchema = require('../validators/user');
 const UserModel = require('../models/user');
 
+const saltRounds = 10;
+
+//---------- Route /create ----------
 router.post("/create" ,createRequest);
 
 async function createRequest(req, res) {
-    const { error, value } = userSchema.validate(req.body);
+    const { error, value } = userSchema.newUser.validate(req.body);
     console.log(req.body);
 
     const user = value;  //  user is pointer to value 
@@ -46,12 +53,14 @@ async function createRequest(req, res) {
     }
 }
 
-// Option 2
+// Option 2 (Preffered)
 function saveUser(user) {
     return new Promise(async (resolve, reject) => {
         try {
+            user.password = await bcrypt.hash(user.password,saltRounds);
+            console.log("Hashed Password: "+user.password);
             const savedUser = await new UserModel(user).save();
-            resolve(savedUser);
+            resolve(_.pick(savedUser,['email','name','_id']));  // Lodash module, lives only requiered fields.
         }
         catch (error) {
             reject(error);
@@ -72,5 +81,36 @@ function saveUser(user) {
 router.get("/create" , (req, res) => {
    res.send("Hi");
 });
+
+//---------- Route /auth ----------
+router.post("/auth" ,login);
+
+async function login(req,res){
+    const { error, value } = userSchema.auth.validate(req.body);
+    const user = value;
+    if (error) {
+        res.status(400).send(error)
+    }
+    else{
+        //console.log(user);
+        try{
+            const userModel = await UserModel.findOne({email:user.email});
+            if (!userModel) { 
+                res.status(400).send("Username or password wrong");
+                return;
+            }
+            const isAuth = await userModel.checkPassword(user.password);
+            if(isAuth) {
+                res.status(200).send("Hey The Password OK !!!");
+            }
+            else {
+                res.status(200).send("The Password Wrong !!!");
+            }            
+        } 
+        catch (err) {
+            res.status(400).send(err)
+        }
+    }
+}
 
 module.exports = router;
