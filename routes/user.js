@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 //const bodyParser = require('body-parser');  // Importing the body-parser module
+var morgan = require('morgan');  // Importing the morgan module (for logs)
 
 var _ = require('lodash');  // Load the full build.
 const chalk = require('chalk');  // Importing the chalk module
@@ -13,6 +14,11 @@ const UserModel = require('../models/user');
 const saltRounds = 10;
 
 //router.use(bodyParser.urlencoded({ extended: false }));
+
+// Logger Section
+// router.use(morgan('dev'));
+router.use(morgan('tiny'));
+// router.use(morgan('combined'));
 
 //---------- Route: /create ----------
 router.get("/create" , (req, res) => {
@@ -33,6 +39,7 @@ async function createRequest(req, res) {
     const user = value;   
 
     if(error) {
+        console.log(chalk.red("Sending Error 400: "+error));
         res.status(400).send(error);
     }
     else 
@@ -40,6 +47,7 @@ async function createRequest(req, res) {
         try {
             const result = await UserModel.find({email:user.email});
             if (result.length > 0) {
+                console.log(chalk.red("Sending Error 400: "+error));
                 res.status(400).send("User already exists");
             }
             else {
@@ -47,13 +55,15 @@ async function createRequest(req, res) {
                     const savedUser = await saveUser(user);
                     res.status(201).send(savedUser);
                 }
-                catch (err) {
-                    res.status(400).send(err);
+                catch (error) {
+                    console.log(chalk.red("Sending Error 400: "+error));
+                    res.status(400).send(error);
                 }
             }
         } 
-        catch (err) {
-            res.status(400).send(err);
+        catch (error) {
+            console.log(chalk.red("Sending Error 400: "+error));
+            res.status(400).send(error);
         }
     }
 }
