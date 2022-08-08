@@ -1,17 +1,21 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 //const bodyParser = require('body-parser');  // Importing the body-parser module
-var morgan = require('morgan');  // Importing the morgan module (for logs)
+const morgan = require('morgan');  // Importing the morgan module (for logs)
 
-var _ = require('lodash');  // Load the full build.
+const _ = require('lodash');  // Load the full build.
 const chalk = require('chalk');  // Importing the chalk module
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const userSchema = require('../validators/user');
 const UserModel = require('../models/user');
+const checkToken = require('./../middleware/checkToken');
 
 // bcrypt password encription level
 const saltRounds = 10;
+
+const returnUserKeys = ['email','_id','createdAt','name'];
 
 //router.use(bodyParser.urlencoded({ extended: false }));
 
@@ -22,14 +26,18 @@ router.use(morgan('tiny'));
 
 //---------- Route: /create ----------
 router.get("/create" , (req, res) => {
-   res.send("/create route GET methode works properly !!! ;-)");
+    // Debug Print req.query 
+    console.log(chalk.blue(`Data recieved from GET Methode:`));
+    console.log(req.query);
+
+    console.log(chalk.blue(`Data recieved from GET Methode:`));
 });
 
 router.post("/create" ,createRequest);
 
 async function createRequest(req, res) {
     // Debug Print req.body 
-    console.log(`Data recieved from POST Methode:`);
+    console.log(chalk.blue(`Data recieved from POST Methode:`));
     console.log(req.body);
 
     // error exist if validation fails, value exist if validation OK
@@ -74,7 +82,7 @@ function saveUser(user) {
             user.password = await bcrypt.hash(user.password,saltRounds);
             console.log(chalk.gray("Hashed Password: "+user.password));
             const savedUser = await new UserModel(user).save();
-            resolve(_.pick(savedUser,['name','email','biz','_id']));  // Lodash module, lives only requiered fields.
+            resolve(_.pick(savedUser,returnUserKeys));  // Lodash module, lives only requiered fields.
         }
         catch (error) {
             reject(error);
@@ -108,14 +116,13 @@ async function login(req,res){
                 return;
             }
             const isAuth = await userModel.checkPassword(user.password);
-            if(isAuth) {
-                console.log(chalk.green("Sending Status 200 with Password OK"));
-                res.status(200).send("Hey The Mail and Password OK !!! ;-)");
+            if(!isAuth) {
+                console.log(chalk.red("Sending Status 400 with Password Wrong"));
+                res.status(400).send("Username or password wrong");
+                return;
             }
-            else {
-                console.log(chalk.green("Sending Status 200 with Password Wrong"));
-                res.status(200).send("The Password Wrong !!! :-(");
-            }            
+            console.log(chalk.green("Sending Status 200 with Password OK"));
+            res.status(200).send(userModel.getToken());
         } 
         catch (error) {
             console.log(chalk.red("Sending Error 400: "+error));
@@ -123,5 +130,34 @@ async function login(req,res){
         }
     }
 }
+
+//---------- Route: /me ----------
+router.post("/me",checkToken,me);
+
+async function me(req,res){
+    const userId = req.uid;
+    console.log(userId);
+    try{ 
+        const user = await UserModel.findOne({_id:userId});
+        res.status(200).send(_.pick(user,returnUserKeys));
+    }
+    catch (err) {
+        res.status(400).send("User not exists try to login again");
+    }
+}
+
+// Test Token Endpoint
+router.post("/decryptToken" ,(req,res)=>{
+    try {
+        var decoded = jwt.verify(req.body.token, process.env.JWT_PASSWORD);
+        res.status(200).send(decoded);
+    }
+    catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+        return;
+    }
+});
+
 
 module.exports = router;

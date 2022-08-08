@@ -1,21 +1,25 @@
+require('dotenv').config();
 const express = require("express");
 const chalk = require('chalk');  // Importing the chalk module
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 const app = express();
 
-app.use(express.json());
+//console.log(process.env); // remove this after you've confirmed it working
 
-// Connect All Routes
-const user = require("./routes/user");
+app.use(express.json());
 
 // Connect to Mongoose
 require("./databases/mongoDb");  // Only for Run Mongoose
 //const mongoose = require("./databases/mongoDb");
 
+// Connect All Routes
+const user = require("./routes/user");
+const visitCard = require("./routes/visitCard");
+
 // Use All Routes
 app.use('/user',user);
-
+app.use('/visitCard',visitCard);
 
 // Listen to PORT Events
 app.listen(PORT, () => {
