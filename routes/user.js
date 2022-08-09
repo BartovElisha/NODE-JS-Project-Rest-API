@@ -15,7 +15,7 @@ const checkToken = require('./../middleware/checkToken');
 // bcrypt password encription level
 const saltRounds = 10;
 
-const returnUserKeys = ['email','_id','createdAt','name'];
+const returnUserKeys = ['_id','email','name','createdAt'];
 
 //router.use(bodyParser.urlencoded({ extended: false }));
 
@@ -136,12 +136,15 @@ router.post("/me",checkToken,me);
 
 async function me(req,res){
     const userId = req.uid;
-    console.log(userId);
     try{ 
-        const user = await UserModel.findOne({_id:userId});
+        const user = await UserModel.findById(userId);
+        // const user = await UserModel.findOne({_id:userId});
+        console.log(chalk.green("Sending Status 200 with Token OK and Data:"));
+        console.log(chalk.blue(user));
         res.status(200).send(_.pick(user,returnUserKeys));
     }
     catch (err) {
+        console.log(chalk.red("Sending Error 400: "+error));
         res.status(400).send("User not exists try to login again");
     }
 }
