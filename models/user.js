@@ -36,7 +36,7 @@ const userSchema = mongoose.Schema({
                 return await bcrypt.compare(password, this.password);
             },
             getToken() {
-                return jwt.sign({id:this._id}, process.env.JWT_PASSWORD);
+                return jwt.sign({id:this._id,biz:this.biz}, process.env.JWT_PASSWORD);
             }
         }
     }

@@ -131,7 +131,9 @@ async function login(req,res){
     }
 }
 
-//---------- Route: /me ----------
+//---------- Route: /me (GET and POST) ----------
+router.get("/me",checkToken,me);
+
 router.post("/me",checkToken,me);
 
 async function me(req,res){
@@ -161,6 +163,5 @@ router.post("/decryptToken" ,(req,res)=>{
         return;
     }
 });
-
 
 module.exports = router;
