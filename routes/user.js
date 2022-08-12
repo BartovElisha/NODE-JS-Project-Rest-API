@@ -33,14 +33,15 @@ router.get("/create" , (req, res) => {
     console.log(chalk.blue(`Data recieved from GET Methode:`));
 });
 
-router.post("/create" ,createRequest);
+router.post("/create" ,createRequest);  // Task Part 4
 
 async function createRequest(req, res) {
     // Debug Print req.body 
     console.log(chalk.blue(`Data recieved from POST Methode:`));
     console.log(req.body);
 
-    // error exist if validation fails, value exist if validation OK
+    // error exist if validation fails 
+    // value exist if validation OK
     const { error, value } = userSchema.newUser.validate(req.body);
 
     // user is pointer to value object
@@ -91,22 +92,24 @@ function saveUser(user) {
 }
 
 //---------- Route: /auth ----------
-router.post("/auth" ,login);
+router.post("/auth" ,login);  // Task Part 5
 
 async function login(req,res){
     // Debug Print req.body 
     console.log(`Data recieved from POST Methode:`);
     console.log(req.body);
-    
+
+    // error exist if validation fails 
+    // value exist if validation OK
     const { error, value } = userSchema.auth.validate(req.body);
 
     // user is pointer to value object
     const user = value;
-    if (error) {
+    if(error) {
         console.log(chalk.red("Sending Error 400: "+error));
         res.status(400).send(error)
     }
-    else{
+    else {
         //console.log(user);
         try{
             const userModel = await UserModel.findOne({email:user.email});
@@ -132,13 +135,12 @@ async function login(req,res){
 }
 
 //---------- Route: /me (GET and POST) ----------
-router.get("/me",checkToken,me);
-
+router.get("/me",checkToken,me);  // Task Part 6
 router.post("/me",checkToken,me);
 
-async function me(req,res){
+async function me(req,res) {
     const userId = req.uid;
-    try{ 
+    try { 
         const user = await UserModel.findById(userId);
         // const user = await UserModel.findOne({_id:userId});
         console.log(chalk.green("Sending Status 200 with Token OK and Data:"));

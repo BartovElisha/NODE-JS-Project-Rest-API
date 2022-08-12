@@ -26,11 +26,11 @@ require("./databases/mongoDb");  // Only for Run Mongoose
 
 // Connect All Routes
 const user = require("./routes/user");
-const visitCard = require("./routes/visitCard");
+const card = require("./routes/card");
 
 // Use All Routes
 app.use('/user',user);
-app.use('/visitCard',visitCard);
+app.use('/card',card);
 
 // Listen to PORT Events
 app.listen(PORT, () => {
