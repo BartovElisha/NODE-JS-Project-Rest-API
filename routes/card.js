@@ -16,6 +16,26 @@ const returnCardKeys = ['companyName','companyDescription','companyAddress','com
 router.use(morgan('tiny'));
 // router.use(morgan('combined'));
 
+//---------- Route: /show ----------
+router.get("/show",showAllCardsRequest);  // Task Part 7
+
+async function showAllCardsRequest(req, res) {
+    try {
+        // Find all cards in the Database
+        const cardModel = await CardModel.find({});
+        if(cardModel.length == 0) {
+            console.log(chalk.red("Sending Error 400"));
+            res.status(400).send("No Cards Found !!!");
+            return;
+        }
+        res.status(200).send(cardModel);
+    }   
+    catch (error) {
+        console.log(chalk.red("Sending Error 400: "+error));
+        res.status(400).send(error);        
+    } 
+}
+
 //---------- Route: /create ----------
 router.post("/create",checkToken,createRequest);  // Task Part 10
 
@@ -45,7 +65,7 @@ async function createRequest(req, res) {
                 try {
                     // Set Card creator _id
                     card.user_id = req.uid;
-                    
+
                     // Task, Part 10.6
                     const savedCard = await saveCard(card);
                     // Task, Part 10.7
