@@ -9,7 +9,7 @@ const cardSchema = require('../validators/card');
 const CardModel = require('../models/card');
 const checkToken = require('./../middleware/checkToken');
 
-const returnCardKeys = ['companyName','companyDescription','companyAddress','companyPhoneNumber','companyImageUrl','user_id','createdAt','like_users_id'];
+const returnCardKeys = ['_id','companyName','companyDescription','companyAddress','companyPhoneNumber','companyImageUrl','user_id','createdAt','like_users_id'];
 
 // Logger Section
 // router.use(morgan('dev'));
@@ -24,8 +24,8 @@ async function showAllCardsRequest(req, res) {
         // Find all cards in the Database
         const cardModel = await CardModel.find({});
         if(cardModel.length == 0) {
-            console.log(chalk.red("Sending Error 400"));
-            res.status(400).send("No Cards Found !!!");
+            console.log(chalk.red("No Cards Found !!!"));
+            res.status(200).send("No Cards Found !!!");
             return;
         }
         res.status(200).send(cardModel);
@@ -34,6 +34,60 @@ async function showAllCardsRequest(req, res) {
         console.log(chalk.red("Sending Error 400: "+error));
         res.status(400).send(error);        
     } 
+}
+
+//---------- Route: /showbyid ----------
+router.get("/showbyid",showCardByIdRequest);  // Task Part 8
+
+async function showCardByIdRequest(req, res) {
+    if(!req.body.cardId) {
+        console.log(chalk.red("Sending Error 400, No Card Id Provided !!!"));
+        res.status(400).send("No Card Id Provided !!!");
+        return;
+    }
+
+    try {
+        // Find all cards in the Database
+        const cardModel = await CardModel.findById(req.body.cardId);
+        if(cardModel.length == 0) {
+            console.log(chalk.green("No Cards Found !!!"));
+            res.status(200).send("No Cards Found !!!");
+            return;
+        }
+        res.status(200).send(cardModel);
+    }   
+    catch (error) {
+        console.log(chalk.red("Sending Error 400: "+error));
+        res.status(400).send(error);        
+    } 
+}
+
+//---------- Route: /showbyuser ----------
+router.get("/showbyuser",checkToken,showCardsByUserIdRequest);  // Task Part 9
+
+async function showCardsByUserIdRequest(req, res) {
+    if(req.biz) {
+        try {
+            // Find all cards of logedin user in the Database
+            const cardModel = await CardModel.find({user_id: req.uid});
+            if(cardModel.length > 0) {
+                console.log(cardModel);
+                res.status(200).send(cardModel);    
+            }
+            else {
+                console.log(chalk.green("Current user still not have any cards"));
+                res.status(200).send("Current user still not have any cards");    
+            }
+        }
+        catch (error) {
+            console.log(chalk.red("Sending Error 400: "+error));
+            res.status(400).send(error);
+        }
+    }
+    else {
+        console.log(chalk.red(`Regular user have't card !!!`));
+        res.status(400).send("Regular user have't card !!!");
+    }    
 }
 
 //---------- Route: /create ----------
@@ -57,35 +111,28 @@ async function createRequest(req, res) {
     }
     else 
     {
-        try {
-            console.log(chalk.green(card));
+        if(req.biz) {
+            console.log(chalk.green(`Business user can create new card`));
+            try {
+                // Set Card creator _id
+                card.user_id = req.uid;
 
-            if(req.biz) {
-                console.log(chalk.green(`Business user can create new card`));
-                try {
-                    // Set Card creator _id
-                    card.user_id = req.uid;
-
-                    // Task, Part 10.6
-                    const savedCard = await saveCard(card);
-                    // Task, Part 10.7
-                    console.log(chalk.green("Sending Status 200, Card saved to Database successfully..."));
-                    res.status(201).send(savedCard);
-                }
-                catch (error) {
-                    // Task, Part 10.8
-                    console.log(chalk.red("Sending Error 500: "+error));
-                    res.status(500).send(error);
-                }
+                // Task, Part 10.6
+                const savedCard = await saveCard(card);
+                // Task, Part 10.7
+                console.log(chalk.green("Sending Status 200, Card saved to Database successfully..."));
+                res.status(201).send(savedCard);
             }
-            else {
-                console.log(chalk.red(`Regular user not allowed to create new card !!!`));
-                res.status(400).send("Regular user not allowed to create new card !!!");
-            }    
+            catch (error) {
+                // Task, Part 10.8
+                console.log(chalk.red("Sending Error 500: "+error));
+                res.status(500).send(error);
+            }
         }
-        catch (error) {
-            console.log(chalk.red(error));
-        }
+        else {
+            console.log(chalk.red(`Regular user not allowed to create new card !!!`));
+            res.status(400).send("Regular user not allowed to create new card !!!");
+        }    
     }
 }
 
