@@ -9,6 +9,8 @@ const cardSchema = require('../validators/card');
 const CardModel = require('../models/card');
 const checkToken = require('./../middleware/checkToken');
 
+const returnCardKeys = ['companyName','companyDescription','companyAddress','companyPhoneNumber','companyImageUrl','user_id','createdAt','like_users_id'];
+
 // Logger Section
 // router.use(morgan('dev'));
 router.use(morgan('tiny'));
@@ -40,7 +42,21 @@ async function createRequest(req, res) {
 
             if(req.biz) {
                 console.log(chalk.green(`Business user can create new card`));
-                res.status(200).send(req.body);
+                try {
+                    // Set Card creator _id
+                    card.user_id = req.uid;
+                    
+                    // Task, Part 10.6
+                    const savedCard = await saveCard(card);
+                    // Task, Part 10.7
+                    console.log(chalk.green("Sending Status 200, Card saved to Database successfully..."));
+                    res.status(201).send(savedCard);
+                }
+                catch (error) {
+                    // Task, Part 10.8
+                    console.log(chalk.red("Sending Error 500: "+error));
+                    res.status(500).send(error);
+                }
             }
             else {
                 console.log(chalk.red(`Regular user not allowed to create new card !!!`));
@@ -51,6 +67,18 @@ async function createRequest(req, res) {
             console.log(chalk.red(error));
         }
     }
+}
+
+function saveCard(card) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const savedCard = await new CardModel(card).save();
+            resolve(_.pick(savedCard,returnCardKeys));  // Lodash module, lives only requiered fields.
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
 }
 
 module.exports = router;
