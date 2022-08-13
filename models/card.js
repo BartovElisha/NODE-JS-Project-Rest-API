@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
+//const validator = require('validator');
 
 // Define MongoDb User Schema
 const cardSchema = mongoose.Schema({
@@ -8,14 +8,17 @@ const cardSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    comapnyDescription: {
+    companyDescription: {
         type: String
     },
     companyAddress: {
         type: String
     },
     companyPhoneNumber: {
-        type: String
+        type: String,
+        required: true,
+        min: 13,
+        max: 14
     },
     companyImageUrl: {
         type: String
