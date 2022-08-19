@@ -153,6 +153,32 @@ async function me(req,res) {
     }
 }
 
+//---------- Route: /show ----------
+router.get("/show",checkToken,showAllUsersRequest);  // Task My Bonus
+
+async function showAllUsersRequest(req, res) {
+    if(req.admin) {
+        try {
+            // Find all cards in the Database
+            const userModel = await UserModel.find({});
+            if(userModel.length == 0) {
+                console.log(chalk.red("No Users Found !!!"));
+                res.status(200).send("No Users Found !!!");
+                return;
+            }
+            res.status(200).send(userModel);
+        }   
+        catch (error) {
+            console.log(chalk.red("Sending Error 400: "+error));
+            res.status(400).send(error);        
+        } 
+    }
+    else {
+        console.log(chalk.red(`Requires Administrator privileges !!!`));
+        res.status(400).send("Requires Administrator privileges !!!");
+    }
+}
+
 // Test Token Endpoint
 router.post("/decryptToken" ,(req,res)=>{
     try {
