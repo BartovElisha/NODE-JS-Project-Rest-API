@@ -21,7 +21,7 @@ async function localMongoConnect() {
 
 async function cloadMongoConnect() {
     try {
-        await mongoose.connect(`mongodb+srv://ElishaB:${process.env.CLOAD_MONGODB_PASSWORD}@cluster0.9zzrld0.mongodb.net/${dataBase}`,{
+        await mongoose.connect(`mongodb+srv://${process.env.CLOAD_MONGODB_USER}:${process.env.CLOAD_MONGODB_PASSWORD}@cluster0.9zzrld0.mongodb.net/${dataBase}`,{
             useNewUrlParser: true
         });  // Cloud Mongo DataBase
         console.log(chalk.bgGreenBright(`Connected to Mongodb Cload DataBase Server, DataBase: ${dataBase}`));
