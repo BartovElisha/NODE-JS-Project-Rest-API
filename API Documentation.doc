@@ -1,0 +1,23 @@
+API List:
+
+localhost:3000/user/create          (Methode GET/POST)
+localhost:3000/user/auth            (Methode POST)
+localhost:3000/user/me              (Methode GET/POST), Must send token
+localhost:3000/user/show            (Methode GET), Show All Users, Must send token, Must be Admin User 
+localhost:3000/user/decryptToken    (Methode POST), Show token data
+
+localhost:3000/card/show            (Methode GET), Show All Cards
+localhost:3000/card/showbyid/:id    (Methode GET), Show Card by ID
+localhost:3000/card/showbyid        (Methode POST), Show Card by ID
+localhost:3000/card/showbyuser      (Methode GET), Show loged in user All Cards, 
+                                    Must send token, 
+                                    Must be Bissnes Account.
+localhost:3000/card/create          (Methode POST), Create New Card for loged in user, 
+                                    Must send token, 
+                                    Must be Bissnes Account.
+localhost:3000/card/update          (Methode UPDATE), Update any Card for loged in user, 
+                                    Must send token, 
+                                    Must be Bissnes Account.
+localhost:3000/card/delete          (Methode DELETE), Delete Card by ID for loged in user, 
+                                    Must send token, 
+                                    Must be Bissnes Account or Administrator.
