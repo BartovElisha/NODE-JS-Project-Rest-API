@@ -37,9 +37,34 @@ async function showAllCardsRequest(req, res) {
 }
 
 //---------- Route: /showbyid ----------
-router.get("/showbyid",showCardByIdRequest);  // Task Part 8
+router.get("/showbyid/:id",showCardByIdGetRequest);  // Task Part 8
 
-async function showCardByIdRequest(req, res) {
+async function showCardByIdGetRequest(req, res) {
+    if(!req.params.id) {
+        console.log(chalk.red("Sending Error 400, No Card Id Provided !!!"));
+        res.status(400).send("No Card Id Provided !!!");
+        return;
+    }
+
+    try {
+        // Find all cards in the Database
+        const cardModel = await CardModel.findById(req.params.id);
+        if(cardModel.length == 0) {
+            console.log(chalk.green("No Cards Found !!!"));
+            res.status(200).send("No Cards Found !!!");
+            return;
+        }
+        res.status(200).send(cardModel);
+    }   
+    catch (error) {
+        console.log(chalk.red("Sending Error 400: "+error));
+        res.status(400).send(error);        
+    } 
+}
+
+router.post("/showbyid",showCardByIdPostRequest);  // Task Part 8 (additional post methode)
+
+async function showCardByIdPostRequest(req, res) {
     if(!req.body.cardId) {
         console.log(chalk.red("Sending Error 400, No Card Id Provided !!!"));
         res.status(400).send("No Card Id Provided !!!");
@@ -147,5 +172,55 @@ function saveCard(card) {
         }
     });
 }
+
+//---------- Route: /update ----------
+router.put("/update",checkToken,updatePutRequest);  // Task Part 11
+
+async function updatePutRequest(req, res) {
+    if(req.biz) {
+        // Add logic..........
+
+        console.log(chalk.green("Bisnes user can update card..."));
+        res.status(200).send({"id": req.body.id});    
+    }
+    else {
+        console.log(chalk.red(`Regular user have't card !!!`));
+        res.status(400).send("Regular user have't card !!!");
+    }
+}
+
+//---------- Route: /update ----------
+router.delete("/delete",checkToken,deleteRequest);  // Task Part 12
+
+async function deleteRequest(req, res) {
+    if(req.biz || req.admin) {
+        console.log(chalk.green("Bisnes user or Administrator can delete card..."));
+        console.log(chalk.blue("biz "+req.biz));
+        console.log(chalk.blue("Admin "+req.admin));
+
+        try {
+            // Find card by id in the Database
+            const cardModel = await CardModel.findById(req.body.cardId);
+            if(cardModel.length == 0) {
+                console.log(chalk.green("No Cards Found !!!"));
+                res.status(200).send("No Cards Found !!!");
+                return;
+            }
+            const status = await CardModel.deleteOne({"_id":cardModel._id});
+            console.log(chalk.bgGreenBright(`Document with _id: '${cardModel._id}' was deleted successfully !!!`));
+            //res.status(200).send(cardModel);
+            res.status(200).send(status);
+        }
+        catch (error) {
+            console.log(chalk.red("Sending Error 500: "+error));
+            res.status(500).send(error);            
+        }
+    }
+    else {
+        console.log(chalk.red(`Regular user can't delete card !!!`));
+        res.status(400).send("Regular user can't delete card !!!");
+    }
+}
+
 
 module.exports = router;

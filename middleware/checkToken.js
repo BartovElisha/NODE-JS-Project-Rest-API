@@ -9,13 +9,13 @@ module.exports = (req, res, next) => {
  
     try {
         const decoded = jwt.verify(token, process.env.JWT_PASSWORD);
-        if(!decoded || !decoded.id) {   
-        //if(!decoded || !decoded.id || !decoded.biz) {   
+        if (!decoded || !("id" in decoded) || !("biz" in decoded)) {
             console.log(decoded);
             return res.status(401).send('Token is invalid or expired.'); 
         }
         req.uid = decoded.id;
         req.biz = decoded.biz;
+        req.admin = decoded.admin;
         next();
     }
     catch (error) {

@@ -15,7 +15,7 @@ const checkToken = require('./../middleware/checkToken');
 // bcrypt password encription level
 const saltRounds = 10;
 
-const returnUserKeys = ['_id','email','name','createdAt'];
+const returnUserKeys = ['_id','email','name','biz','admin','createdAt'];
 
 //router.use(bodyParser.urlencoded({ extended: false }));
 
@@ -125,7 +125,7 @@ async function login(req,res){
                 return;
             }
             console.log(chalk.green("Sending Status 200 with Password OK"));
-            res.status(200).send(userModel.getToken());
+            res.status(200).send({"token": userModel.getToken()});
         } 
         catch (error) {
             console.log(chalk.red("Sending Error 400: "+error));
