@@ -198,11 +198,13 @@ async function updatePutRequest(req, res) {
             console.log(chalk.green(`Business user can create new card`));
             try {
                 // Option 1
-                const dbUpdatedCard = await CardModel.findByIdAndUpdate(updatedCard._id, updatedCard, {new: true});  
+                const filter = {_id: updatedCard._id}
+                const dbUpdatedCard = await CardModel.findOneAndUpdate(filter, updatedCard, {new: true});  
                 // Option 2
-                //const dbUpdatedCard = await CardModel.findOneAndUpdate({_id: updatedCard._id}, updatedCard, {new: true});  
+                // const dbUpdatedCard = await CardModel.findByIdAndUpdate(updatedCard._id, updatedCard, {new: true});  
+
                 console.log("Sending Status 200, Updated Card...");
-                res.status(200).send(dbUpdatedCard);
+                res.status(200).send(_.pick(dbUpdatedCard,returnCardKeys));
             }
             catch (error) {
                 console.log(chalk.red("Sending Error 500: "+error));
