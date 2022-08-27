@@ -10,3 +10,13 @@ module.exports.newCard = Joi.object({
     companyPhoneNumber: Joi.string().required().min(13).max(14),
     companyImageUrl: Joi.string()
 });
+
+// Task, Part 11.3
+module.exports.updateCard = Joi.object({
+    _id: Joi.string().required(),
+    companyName: Joi.string().min(2).max(100),
+    companyDescription: Joi.string(),
+    companyAddress: Joi.string(),
+    companyPhoneNumber: Joi.string().min(13).max(14),
+    companyImageUrl: Joi.string()
+});

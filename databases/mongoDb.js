@@ -14,9 +14,9 @@ async function localMongoConnect() {
     catch (error) {
         console.log(chalk.red("Error:" + error));
     } 
-    finally {
-        console.log(chalk.bgGreenBright("Mongoose Operation Finished !!!"));
-    }
+    // finally {
+    //     console.log(chalk.bgGreenBright("Mongoose Operation Finished !!!"));
+    // }
 }
 
 async function cloadMongoConnect() {

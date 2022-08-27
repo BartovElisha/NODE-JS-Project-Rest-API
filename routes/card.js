@@ -47,7 +47,7 @@ async function showCardByIdGetRequest(req, res) {
     }
 
     try {
-        // Find all cards in the Database
+        // Find card by _id in the Database
         const cardModel = await CardModel.findById(req.params.id);
         if(cardModel.length == 0) {
             console.log(chalk.green("No Cards Found !!!"));
@@ -177,19 +177,46 @@ function saveCard(card) {
 router.put("/update",checkToken,updatePutRequest);  // Task Part 11
 
 async function updatePutRequest(req, res) {
-    if(req.biz) {
-        // Add logic..........
+    // Debug Print req.body 
+    console.log(chalk.blue(`Data recieved from POST Methode:`));
+    console.log(req.body);
 
-        console.log(chalk.green("Bisnes user can update card..."));
-        res.status(200).send({"id": req.body.id});    
+    // error exist if validation fails 
+    // value exist if validation OK
+    const { error, value } = cardSchema.updateCard.validate(req.body);
+
+    // user is pointer to value object
+    const updatedCard = value;  
+
+    if(error) {
+        console.log(chalk.red("Sending Error 400: "+error));
+        res.status(400).send(error);
     }
-    else {
-        console.log(chalk.red(`Regular user have't card !!!`));
-        res.status(400).send("Regular user have't card !!!");
+    else 
+    {
+        if(req.biz) {
+            console.log(chalk.green(`Business user can create new card`));
+            try {
+                // Option 1
+                const dbUpdatedCard = await CardModel.findByIdAndUpdate(updatedCard._id, updatedCard, {new: true});  
+                // Option 2
+                //const dbUpdatedCard = await CardModel.findOneAndUpdate({_id: updatedCard._id}, updatedCard, {new: true});  
+                console.log("Sending Status 200, Updated Card...");
+                res.status(200).send(dbUpdatedCard);
+            }
+            catch (error) {
+                console.log(chalk.red("Sending Error 500: "+error));
+                res.status(500).send(error);
+            }
+        }
+        else {
+            console.log(chalk.red(`Regular user not allowed to update any card !!!`));
+            res.status(400).send("Regular user not allowed to update any card !!!");
+        }    
     }
 }
 
-//---------- Route: /update ----------
+//---------- Route: /delete ----------
 router.delete("/delete",checkToken,deleteRequest);  // Task Part 12
 
 async function deleteRequest(req, res) {

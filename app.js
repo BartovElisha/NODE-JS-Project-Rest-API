@@ -34,5 +34,5 @@ app.use('/card',card);
 
 // Listen to PORT Events
 app.listen(PORT, () => {
-    console.log(chalk.yellowBright(`Server is up on port: ${PORT}`));
+    console.log(chalk.bgGreenBright(`Server is up on port: ${PORT}`));
 });
