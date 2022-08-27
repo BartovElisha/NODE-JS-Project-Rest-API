@@ -251,4 +251,49 @@ async function deleteRequest(req, res) {
     }
 }
 
+//---------- Route: /likesbyid/:id ----------
+router.patch("/likesbyid/:id",checkToken,likesUpdatePatchRequest);  // Task Part 13
+
+async function likesUpdatePatchRequest(req, res) {
+    if(!req.params.id) {
+        console.log(chalk.red("Sending Error 400, No Card Id Provided !!!"));
+        res.status(400).send("No Card Id Provided !!!");
+        return;
+    }
+
+    // Debug Print req.body 
+    console.log(chalk.blue(`Data recieved from POST Methode:`));
+    console.log(req.body);
+
+    // error exist if validation fails 
+    // value exist if validation OK
+    const { error, value } = cardSchema.updateLikes.validate(req.body);
+
+    // user is pointer to value object
+    const usersLikeArray = value;  
+
+    if(error) {
+        console.log(chalk.red("Sending Error 400: "+error));
+        res.status(400).send(error);
+    }
+    else 
+    {
+        if(req.biz) {
+            try {
+                const dbUpdatedCard = await CardModel.findByIdAndUpdate(req.params.id, usersLikeArray, {new: true});  
+                console.log("Sending Status 200, Updated Card...");
+                res.status(200).send(_.pick(dbUpdatedCard,returnCardKeys));
+            }
+            catch (error) {
+                console.log(chalk.red("Sending Error 500: "+error));
+                res.status(500).send(error);
+            }
+        }
+        else {
+            console.log(chalk.red(`Regular user not allowed to update any card !!!`));
+            res.status(400).send("Regular user not allowed to update any card !!!");
+        }    
+    }
+}
+
 module.exports = router;

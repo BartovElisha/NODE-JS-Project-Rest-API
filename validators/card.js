@@ -20,3 +20,8 @@ module.exports.updateCard = Joi.object({
     companyPhoneNumber: Joi.string().min(13).max(14),
     companyImageUrl: Joi.string()
 });
+
+// Task, Part 13.2
+module.exports.updateLikes = Joi.object({
+    like_users_id: Joi.array().items(Joi.string()).required()
+});

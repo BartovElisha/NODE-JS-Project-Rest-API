@@ -21,3 +21,6 @@ localhost:3000/card/update          (Methode UPDATE), Update any Card for loged 
 localhost:3000/card/delete          (Methode DELETE), Delete Card by ID for loged in user, 
                                     Must send token, 
                                     Must be Bissnes Account or Administrator.
+localhost:3000/card/likesbyid/:id   (Methode PATCH), Update Users Likes Array by Card ID for loged in user, 
+                                    Must send token, 
+                                    Must be Bissnes Account or Administrator.
